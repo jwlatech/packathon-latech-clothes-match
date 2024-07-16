@@ -1,1 +1,1 @@
-import {MatchExperience} from './MatchExperience';
+export {MatchExperience} from './MatchExperience';

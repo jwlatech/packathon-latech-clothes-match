@@ -30,7 +30,7 @@ import {Video} from './Video';
 import {VideoEmbed} from './VideoEmbed';
 import {MetaobjectTextBlock} from './MetaobjectTextBlock/MetaobjectTextBlock';
 import {MetaobjectImage} from './MetaobjectImage';
-import {MatchExperience} from './MatchExperience/MatchExperience';
+import {MatchExperience} from './MatchExperience';
 
 export function registerSections() {
   registerSection(Accordions, {name: 'accordions'});
