@@ -12,4 +12,4 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
 }
 
 MatchExperience.displayName = 'MatchExperience';
-MatchExperience.schema = Schema;
+MatchExperience.Schema = Schema;
