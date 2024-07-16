@@ -1,6 +1,7 @@
 import {Container} from '~/components/Container';
 
 import type {MatchExperienceCms} from './MatchExperience.types';
+import {Schema} from './MatchExperience.schema';
 
 export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   return (
@@ -9,3 +10,6 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
     </Container>
   );
 }
+
+MatchExperience.displayName = 'MatchExperience';
+MatchExperience.schema = Schema;
