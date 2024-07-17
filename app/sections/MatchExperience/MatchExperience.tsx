@@ -1,13 +1,31 @@
+import {useLoaderData} from '@remix-run/react';
+import {useInView} from 'react-intersection-observer';
+
 import {Container} from '~/components/Container';
 import {Image} from '~/components';
 import {getAspectRatioFromPercentage} from '~/lib/utils';
+import {useProductsFromHandles} from '~/hooks';
 
 import type {MatchExperienceCms} from './MatchExperience.types';
 import {Schema} from './MatchExperience.schema';
 
 export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
+  const {ref, inView} = useInView({
+    rootMargin: '200px',
+    triggerOnce: true,
+  });
   const {media, section} = cms;
   const {image, yesImage, noImage, aspectMobile} = {...media};
+  const data: any = useLoaderData();
+  const productHandles = [];
+  for (const collection of data.collections) {
+    for (const product of collection.products.edges) {
+      productHandles.push(product.node.handle);
+    }
+  }
+  const products = useProductsFromHandles(productHandles);
+
+  console.log(products);
   return (
     <Container container={cms.container}>
       <div
@@ -28,8 +46,8 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
             width="88"
             loading="lazy"
           />
-          <div className="w-full grow px-[36px]">
-            <div className="size-full rounded-[24px] bg-blue-500"></div>
+          <div className="flex w-full grow justify-center px-[36px]">
+            <div className="size-full max-w-[500px] rounded-[24px] bg-blue-500"></div>
           </div>
           <div>
             <h4>Nombre del producto</h4>

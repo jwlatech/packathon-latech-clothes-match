@@ -191,6 +191,21 @@ export function Schema({template}: {template: string}) {
     fields: [
       media,
       {
+        label: 'Collections',
+        name: 'collections',
+        component: 'group-list',
+        itemProps: {
+          label: '{{item.collection.title}}',
+        },
+        fields: [
+          {
+            name: 'collection',
+            component: 'collections',
+            label: 'Collection',
+          },
+        ],
+      },
+      {
         label: 'Section Settings',
         name: 'section',
         component: 'group',
