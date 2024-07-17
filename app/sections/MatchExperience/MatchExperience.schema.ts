@@ -8,9 +8,83 @@ const media = {
   component: 'group',
   fields: [
     {
-      label: 'Image Settings',
+      label: 'Logo Settings',
       name: 'image',
-      description: 'Image, image position',
+      description: 'Logo, image position',
+      component: 'group',
+      fields: [
+        {
+          label: 'Image Alt',
+          name: 'alt',
+          component: 'text',
+          description:
+            'Alt text set in media manager for selected image(s) will take priority. Re-add image(s) if alt text was set in media manager after selection.',
+        },
+        {
+          label: 'Image (tablet/desktop)',
+          name: 'imageDesktop',
+          component: 'image',
+        },
+        {
+          label: 'Image Crop Position (tablet/desktop)',
+          name: 'cropDesktop',
+          component: 'select',
+          options: CROP_POSITIONS,
+        },
+        {
+          label: 'Image (mobile)',
+          name: 'imageMobile',
+          component: 'image',
+        },
+        {
+          label: 'Image Crop Position (mobile)',
+          name: 'cropMobile',
+          component: 'select',
+          options: CROP_POSITIONS,
+        },
+      ],
+    },
+    {
+      label: 'Yes Button Settings',
+      name: 'yesImage',
+      description: 'Logo, image position',
+      component: 'group',
+      fields: [
+        {
+          label: 'Image Alt',
+          name: 'alt',
+          component: 'text',
+          description:
+            'Alt text set in media manager for selected image(s) will take priority. Re-add image(s) if alt text was set in media manager after selection.',
+        },
+        {
+          label: 'Image (tablet/desktop)',
+          name: 'imageDesktop',
+          component: 'image',
+        },
+        {
+          label: 'Image Crop Position (tablet/desktop)',
+          name: 'cropDesktop',
+          component: 'select',
+          options: CROP_POSITIONS,
+        },
+        {
+          label: 'Image (mobile)',
+          name: 'imageMobile',
+          component: 'image',
+        },
+        {
+          label: 'Image Crop Position (mobile)',
+          name: 'cropMobile',
+          component: 'select',
+          options: CROP_POSITIONS,
+        },
+      ],
+    },
+    {
+      label: 'No Button Settings',
+      name: 'noImage',
+      description: 'Logo, image position',
       component: 'group',
       fields: [
         {

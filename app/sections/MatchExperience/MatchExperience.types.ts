@@ -1,4 +1,4 @@
-import type {Crop, ImageCms} from '~/lib/types';
+import type {Crop, ImageCms, ProductCms} from '~/lib/types';
 import type {ContainerSettings} from '~/settings/container';
 
 interface Image {
@@ -14,6 +14,8 @@ interface Media {
   aspectMobile: string;
   fill: boolean;
   image: Image;
+  yesImage: Image;
+  noImage: Image;
 }
 
 interface Section {
@@ -27,4 +29,7 @@ export interface MatchExperienceCms {
   container: ContainerSettings;
   media: Media;
   section: Section;
+  products: {
+    product: ProductCms;
+  }[];
 }
