@@ -1,5 +1,7 @@
 import {useLoaderData} from '@remix-run/react';
 import {useInView} from 'react-intersection-observer';
+import TinderCard from 'react-tinder-card';
+import {useState} from 'react';
 
 import {Container} from '~/components/Container';
 import {Image} from '~/components';
@@ -25,6 +27,16 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   }
   const products = useProductsFromHandles(productHandles);
 
+  const [lastDirection, setLastDirection] = useState();
+
+  const swiped = (direction: any, nameToDelete: any) => {
+    console.log('removing: ' + nameToDelete);
+    setLastDirection(direction);
+  };
+
+  const outOfFrame = (name: any) => {
+    console.log(name + ' left the screen!');
+  };
   console.log(products);
   return (
     <Container container={cms.container}>
@@ -46,8 +58,28 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
             width="88"
             loading="lazy"
           />
-          <div className="flex w-full grow justify-center px-[36px]">
-            <div className="size-full max-w-[500px] rounded-[24px] bg-blue-500"></div>
+          <div
+            className="flex w-full grow justify-center px-[36px] relative"
+            id="cardContainer"
+          >
+            {products.map((product: any) => (
+              <TinderCard
+                key={product.id}
+                className="swipe absolute h-full"
+                onSwipe={(dir) => swiped(dir, product.title)}
+                onCardLeftScreen={() => outOfFrame(product.title)}
+              >
+                <div
+                  className="size-full max-w-[500px] rounded-[24px]"
+                  style={{
+                    backgroundImage: `url(${product.featuredImage.url})`,
+                    backgroundPosition: 'center',
+                  }}
+                >
+                  <h3 className="text-transparent">{product.title}</h3>
+                </div>
+              </TinderCard>
+            ))}
           </div>
           <div>
             <h4>Nombre del producto</h4>
