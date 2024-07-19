@@ -22,6 +22,17 @@ query Collection {
         altText
       }
       products(first: 50) {
+        filters {
+          id
+          label
+          type
+          values {
+            id
+            label
+            count
+            input
+          }
+        }
         edges {
           node {
             id
@@ -70,6 +81,7 @@ export async function loader({context, params, request}: LoaderFunctionArgs) {
         const {collection} = await context.storefront.query(
           MATCH_COLLECTION_QUERY(collectionHandle),
         );
+        console.log("collection", JSON.stringify(collection, null, 2));
         collections.push(collection);
       }
     }
