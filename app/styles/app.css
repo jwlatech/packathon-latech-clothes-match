@@ -409,6 +409,10 @@
   }
 }
 
+#recommendedProducts::-webkit-scrollbar {
+  display: none;
+}
+
 @layer utilities {
   /* hide scrollbar */
   .scrollbar-hide {

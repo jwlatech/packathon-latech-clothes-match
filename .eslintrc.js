@@ -29,6 +29,12 @@ module.exports = {
     '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
     'no-case-declarations': 'off',
     'jest/no-deprecated-functions': 'off',
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'auto',
+      },
+    ],
     'import/order': [
       'error',
       {

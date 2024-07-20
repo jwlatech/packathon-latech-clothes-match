@@ -31,6 +31,7 @@ import {VideoEmbed} from './VideoEmbed';
 import {MetaobjectTextBlock} from './MetaobjectTextBlock/MetaobjectTextBlock';
 import {MetaobjectImage} from './MetaobjectImage';
 import {MatchExperience} from './MatchExperience';
+import {MatchExperienceResults} from './MatchExperienceResults';
 
 export function registerSections() {
   registerSection(Accordions, {name: 'accordions'});
@@ -66,4 +67,5 @@ export function registerSections() {
   registerSection(MetaobjectTextBlock, {name: 'metaobject-text-block'});
   registerSection(MetaobjectImage, {name: 'metaobject-image'});
   registerSection(MatchExperience, {name: 'match-experience'});
+  registerSection(MatchExperienceResults, {name: 'match-experience-results'});
 }
