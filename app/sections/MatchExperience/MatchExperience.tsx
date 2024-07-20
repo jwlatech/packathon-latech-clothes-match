@@ -1,6 +1,9 @@
 import {useLoaderData} from '@remix-run/react';
 import {useInView} from 'react-intersection-observer';
 import {useEffect, useState} from 'react';
+import type {Product} from '@shopify/hydrogen-react/storefront-api-types';
+import {Collection} from '@shopify/hydrogen-react/storefront-api-types';
+import {debounce} from 'lodash';
 
 import {Container} from '~/components/Container';
 import {Image} from '~/components';
@@ -11,11 +14,6 @@ import type {MatchExperienceCms} from './MatchExperience.types';
 import {Schema} from './MatchExperience.schema';
 import {DislikeIcon, LikeIcon} from './icons';
 import {SwipeableCard} from './SwippableMatches';
-import {
-  Collection,
-  Product,
-} from '@shopify/hydrogen-react/storefront-api-types';
-import {debounce} from 'lodash';
 import {useQueryFilters} from './hooks/filters.hook';
 
 interface Ifilters {
@@ -80,8 +78,6 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   const {image, yesImage, noImage, aspectMobile} = {...media};
   const data: any = useLoaderData();
 
-  // console.log('collections', data.collections);
-
   const productHandles = data.collections.flatMap((collection: any) =>
     collection.products.edges.map((product: any) => product.node.handle),
   );
@@ -138,7 +134,6 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
     const filtersCollections = newSelectedCollections
       .map((collection) => {
         const filterSize = collection.filters.find((filter) => {
-          console.log('filter', filter);
           if (filter.label.toLocaleLowerCase().includes('size')) return filter; // Usar includes en lugar de contains
         });
 
@@ -265,7 +260,6 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
     }
 
     // Acción basada en la dirección del swipe
-    console.log(`You swiped ${direction} on ${filtredProducts[index].title}`);
   };
 
   const removeCard = (index: number) => {
@@ -277,7 +271,6 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   };
 
   const handleLeftButtonClick = () => {
-    console.log('currentIndex', currentIndex);
     if (currentIndex >= 0) {
       setSwipeDirection('left');
     }
@@ -309,12 +302,16 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
             width="88"
             loading="lazy"
           />
-          <div className="flex w-full gap-2 justify-center px-[36px]">
+          <div className="flex w-full justify-center gap-2 px-[36px]">
             {customCollections.map((collection, index) => (
               <div
                 key={collection.title}
                 onClick={() => handleSelectCollection(collection)}
-                className={`cursor-pointer ${isSelectedCollection(collection) ? 'bg-stone-900 text-white' : 'bg-neutral-200 text-neutral-400'} rounded-full px-6 py-2 select-none`}
+                className={`cursor-pointer ${
+                  isSelectedCollection(collection)
+                    ? 'bg-stone-900 text-white'
+                    : 'bg-neutral-200 text-neutral-400'
+                } select-none rounded-full px-6 py-2`}
               >
                 {' '}
                 <p>{collection.title}</p>{' '}
@@ -332,7 +329,11 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
                     <div className="flex gap-2">
                       {filter.values.map((value) => (
                         <div
-                          className={`cursor-pointer ${isSelectedFilter(filter.collectionName, value) ? 'bg-stone-900 text-white' : 'bg-neutral-200 text-neutral-400'} rounded-full px-6 py-2 select-none`}
+                          className={`cursor-pointer ${
+                            isSelectedFilter(filter.collectionName, value)
+                              ? 'bg-stone-900 text-white'
+                              : 'bg-neutral-200 text-neutral-400'
+                          } select-none rounded-full px-6 py-2`}
                           key={value}
                           onClick={() =>
                             handleSelectedFilterCollectionValue(filter, value)
@@ -351,7 +352,7 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
             {isLoading ? (
               <p>Loading...</p>
             ) : (
-              <div className="size-full flex justify-center items-center max-w-[500px] rounded-[24px] bg-white">
+              <div className="flex size-full max-w-[500px] items-center justify-center rounded-[24px] bg-white">
                 {filtredProducts.length > 0 &&
                   !isLoading &&
                   filtredProducts.map((product, index) => (
@@ -375,7 +376,7 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
                 <DislikeIcon className="text-red-400" />
               </div>
               <div
-                className="cursor-pointer active:scale-95 transition duration-300"
+                className="cursor-pointer transition duration-300 active:scale-95"
                 onClick={handleRightButtonClick}
               >
                 <LikeIcon className="text-green-300" />
