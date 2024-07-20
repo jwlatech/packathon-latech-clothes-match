@@ -1,6 +1,8 @@
 import {useLoaderData} from '@remix-run/react';
 import {useInView} from 'react-intersection-observer';
 import {useEffect, useState} from 'react';
+import type {Product} from '@shopify/hydrogen-react/storefront-api-types';
+import {debounce} from 'lodash';
 
 import {Container} from '~/components/Container';
 import {Image} from '~/components';
@@ -9,37 +11,18 @@ import {useProductsFromHandles} from '~/hooks';
 
 import type {MatchExperienceCms} from './MatchExperience.types';
 import {Schema} from './MatchExperience.schema';
-import {DislikeIcon, LikeIcon} from './icons';
-import {SwipeableCard} from './SwippableMatches';
-import {
-  Collection,
-  Product,
-} from '@shopify/hydrogen-react/storefront-api-types';
-import {debounce} from 'lodash';
 import {useQueryFilters} from './hooks/filters.hook';
-
-interface Ifilters {
-  sizeShirt: string;
-  sizeShoes: string;
-}
-
-interface IfilterCollection {
-  collectionName: string;
-  title: string;
-  values: string[];
-}
-
-interface IfilterCollectionValue {
-  collectionName: string;
-  title: string;
-  value: string;
-}
-
-interface ICustomCollection {
-  title: string;
-  filters: any[];
-  products: Product[];
-}
+import GenderToggle from './components/steps/firstStep/GenderToggle';
+import type {
+  Ifilters,
+  ICustomCollection,
+  IfilterCollection,
+  IfilterCollectionValue,
+} from './interfaces';
+import {Chip} from './components/common';
+import {FirstStepMatch} from './components/steps';
+import MatchLookIcon from './icons/MatchLookIcon';
+import {SecondStepMatch} from './components/steps/secondStep';
 
 const INIT_FILTER = {
   sizeShirt: '',
@@ -289,6 +272,27 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
     }
   };
 
+  const [stepView, setStepView] = useState<number>(0);
+
+  const menuView: {[key: number]: JSX.Element} = {
+    0: (
+      <FirstStepMatch
+        collections={customCollections}
+        handleSelectCollection={handleSelectCollection}
+        isSelectedCollection={isSelectedCollection}
+      />
+    ),
+    1: (
+      <SecondStepMatch
+        filtersByCollection={filtersByCollection}
+        isSelectedFilter={isSelectedFilter}
+        handleSelectedFilterCollectionValue={
+          handleSelectedFilterCollectionValue
+        }
+      />
+    ),
+  };
+
   return (
     <Container container={cms.container}>
       <div
@@ -296,29 +300,45 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
           section?.verticalPadding ? 'py-contained' : ''
         }`}
       >
-        <div className="flex h-[calc(100vh-200px)] flex-col items-center justify-center gap-5">
-          <Image
-            data={{
-              altText: image?.imageMobile?.altText || image?.alt,
-              url: image?.imageMobile?.src,
-              width: image?.imageMobile?.width,
-              height: image?.imageMobile?.height,
-            }}
-            aspectRatio={getAspectRatioFromPercentage(aspectMobile)}
-            crop={image?.cropMobile}
-            width="88"
-            loading="lazy"
-          />
-          <div className="flex w-full gap-2 justify-center px-[36px]">
+        <div className="flex h-[calc(100vh-184px)] flex-col items-center justify-between gap-8 px-4">
+          <div className="flex justify-center">
+            <MatchLookIcon className="h-[60px] w-[80px]" />
+            {/* <Image
+              data={{
+                altText: image?.imageMobile?.altText || image?.alt,
+                url: image?.imageMobile?.src,
+                width: image?.imageMobile?.width,
+                height: image?.imageMobile?.height,
+              }}
+              aspectRatio={getAspectRatioFromPercentage(aspectMobile)}
+              crop={image?.cropMobile}
+              width="88"
+              loading="lazy"
+            /> */}
+          </div>
+          <div style={{flexGrow: 1}}>
+            {menuView[stepView]}
+            {/* <FirstStepMatch
+              collections={customCollections}
+              handleSelectCollection={handleSelectCollection}
+              isSelectedCollection={isSelectedCollection}
+            /> */}
+          </div>
+          <button
+            className="flex w-full max-w-[300px] items-center justify-center rounded-full bg-[#323232] py-2 text-white "
+            onClick={() => setStepView(stepView + 1)}
+          >
+            Next
+          </button>
+
+          {/* <div className="flex w-full gap-2 justify-center px-[36px]">
             {customCollections.map((collection, index) => (
-              <div
+              <Chip
+                label={collection.title}
+                isSelected={isSelectedCollection(collection)}
                 key={collection.title}
                 onClick={() => handleSelectCollection(collection)}
-                className={`cursor-pointer ${isSelectedCollection(collection) ? 'bg-stone-900 text-white' : 'bg-neutral-200 text-neutral-400'} rounded-full px-6 py-2 select-none`}
-              >
-                {' '}
-                <p>{collection.title}</p>{' '}
-              </div>
+              />
             ))}
           </div>
           <div>
@@ -381,7 +401,7 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
                 <LikeIcon className="text-green-300" />
               </div>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </Container>
