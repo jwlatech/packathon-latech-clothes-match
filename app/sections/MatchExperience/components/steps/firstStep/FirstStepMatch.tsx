@@ -7,19 +7,21 @@ interface FirstStepMatchProps {
   collections: ICustomCollection[];
   handleSelectCollection: (collection: ICustomCollection) => void;
   isSelectedCollection: (collection: ICustomCollection) => boolean;
+  selectedGender: string;
+  setSelectedGender: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const FirstStepMatch = ({
   collections,
   handleSelectCollection,
   isSelectedCollection,
+  selectedGender,
+  setSelectedGender,
 }: FirstStepMatchProps) => {
-  const [selected, setSelected] = useState('Man');
-
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <GenderToggle selected={selected} setSelected={setSelected} />
+        <GenderToggle selected={selectedGender} setSelected={setSelectedGender} />
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col items-center justify-center font-semibold gap-1">

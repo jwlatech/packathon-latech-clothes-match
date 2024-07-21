@@ -14,21 +14,26 @@ import type {
   ICustomCollection,
   IfilterCollection,
   IfilterCollectionValue,
-  IVariant,
   IProductCard,
 } from './interfaces';
 import {FirstStepMatch, ThirdStepMatch} from './components/steps';
 import MatchLookIcon from './icons/MatchLookIcon';
 import {SecondStepMatch} from './components/steps/secondStep';
 
+import type {ProductVariant} from '@shopify/hydrogen-react/storefront-api-types';
+
 const INIT_FILTER: Ifilters = {
   selectedFilterCollectionValue: [],
 };
 
-function filterProducts(products: Product[], filter: Ifilters) {
+function filterProducts(products: Product[], filter: Ifilters, selectedGender: string) {
   const {selectedFilterCollectionValue} = filter;
 
   if (selectedFilterCollectionValue.length === 0) return products;
+
+  const genderProducts = products.filter((product) => {
+    return product.tags.map(tag => tag.toLocaleLowerCase()).includes(selectedGender.toLocaleLowerCase());
+  });
 
   const selectedCollections = [
     ...new Set(
@@ -38,7 +43,7 @@ function filterProducts(products: Product[], filter: Ifilters) {
     ),
   ];
 
-  const collectionProducts = products.reduce<
+  const collectionProducts = genderProducts.reduce<
     Record<string, (typeof products)[0]['variants']['nodes']>
   >((acc, product) => {
     product.collections.nodes.forEach((collection) => {
@@ -99,8 +104,9 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
 
   const fetchedProducts = useProductsFromHandles(productHandles);
   const [filtredProducts, setFiltredProducts] = useState<IProductCard[]>([]);
-  const [variantsProducts, setVariantsProducts] = useState<IVariant[]>([]);
+  const [variantsProducts, setVariantsProducts] = useState<ProductVariant[]>([]);
 
+  const [selectedGender, setSelectedGender] = useState<string>('Men');
   const [customCollections, setCustomCollections] =
     useState<ICustomCollection[]>(collections);
   const [selectedCollections, setSelectedCollections] = useState<
@@ -159,17 +165,21 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   ) => {
     // Crear el nuevo filtro
     const newFilter = {
+      gender: selectedGender,
       collectionName: filter.collectionName,
       title: filter.title,
       value,
     };
-  
+
     // Filtrar la colección, excluyendo los que coinciden con collectionName y tienen diferente valor
     const filteredCollection = filtersByCollectionValue.filter(
       (filterCol) =>
-        !(filterCol.collectionName === filter.collectionName && filterCol.value !== value)
+        !(
+          filterCol.collectionName === filter.collectionName &&
+          filterCol.value !== value
+        ),
     );
-  
+
     // Agregar el nuevo filtro
     const newFiltersByCollectionValue = [...filteredCollection, newFilter];
     setFiltersByCollectionValue(newFiltersByCollectionValue);
@@ -186,10 +196,11 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
     );
   };
 
-  const handleFilters = debounce((filter: Ifilters, products: Product[]) => {
-    const filtredVariantsProducts: IVariant[] = filterProducts(
+  const handleFilters = debounce((filter: Ifilters, products: Product[], selectedGender: string) => {
+    const filtredVariantsProducts: ProductVariant[] = filterProducts(
       products,
       filter,
+      selectedGender
     );
 
     setVariantsProducts(filtredVariantsProducts);
@@ -203,7 +214,7 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
           title: product.handle,
           id: product.id,
           price: variant.price.amount,
-          imageURL: variant.image.url,
+          imageURL: variant.image?.url || '',
           tags: product.tags,
         });
       }
@@ -216,7 +227,7 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   }, 500);
 
   const {setFilter} = useQueryFilters(INIT_FILTER, (filters) => {
-    handleFilters(filters, fetchedProducts);
+    handleFilters(filters, fetchedProducts, selectedGender);
   });
 
   useEffect(() => {
@@ -234,6 +245,8 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
         collections={customCollections}
         handleSelectCollection={handleSelectCollection}
         isSelectedCollection={isSelectedCollection}
+        selectedGender={selectedGender}
+        setSelectedGender={setSelectedGender}
       />
     ),
     1: (
@@ -254,6 +267,14 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
     ),
   };
 
+  const isDisabled = () => {
+    if(stepView === 0) {
+      return selectedCollections.length === 0;
+    } else if(stepView === 1) {
+      return filtersByCollectionValue.length === 0;
+    }
+  }
+
   return (
     <Container container={cms.container}>
       <div
@@ -268,7 +289,8 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
           <div style={{flexGrow: 1}}>{menuView[stepView]}</div>
           {stepView <= 1 && (
             <button
-              className="flex w-full max-w-[300px] items-center justify-center rounded-full bg-[#323232] py-2 text-white "
+              className={`flex w-full max-w-[300px] items-center justify-center rounded-full ${isDisabled() ? "bg-[#646464]" : "bg-[#323232]" }  py-2 text-white`}
+              disabled={isDisabled()}
               onClick={() => setStepView(stepView + 1)}
             >
               Next

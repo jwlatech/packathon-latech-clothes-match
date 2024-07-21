@@ -1,8 +1,9 @@
+import {useNavigate} from '@remix-run/react';
+import { ProductVariant } from '@shopify/hydrogen-react/storefront-api-types';
 import React, {useEffect, useState} from 'react';
 import {
   DislikeIcon,
   IProductCard,
-  IVariant,
   LikeIcon,
   SwipeableCard,
 } from '~/sections/MatchExperience';
@@ -10,7 +11,7 @@ import {
 interface ThirdStepMatchProps {
   filtredProducts: IProductCard[];
   setFiltredProducts: React.Dispatch<React.SetStateAction<IProductCard[]>>;
-  variantsProducts: IVariant[];
+  variantsProducts: ProductVariant[];
 }
 
 const ThirdStepMatch = ({
@@ -18,6 +19,8 @@ const ThirdStepMatch = ({
   setFiltredProducts,
   variantsProducts,
 }: ThirdStepMatchProps) => {
+  const navigate = useNavigate();
+
   const [currentIndex, setCurrentIndex] = useState<number>(
     filtredProducts.length - 1,
   );
@@ -36,11 +39,9 @@ const ThirdStepMatch = ({
     if (direction === 'right') {
       const localItems = JSON.parse(localStorage.getItem('like') || '[]');
       const newLocalItems = [...localItems, ...newVariantsProducts];
-      //   localItems.push(filtredProducts[index]);
       localStorage.setItem('like', JSON.stringify(newLocalItems));
     } else if (direction === 'left') {
       const localItems = JSON.parse(localStorage.getItem('dislike') || '[]');
-      //   localItems.push(filtredProducts[index]);
       const newLocalItems = [...localItems, ...newVariantsProducts];
       localStorage.setItem('dislike', JSON.stringify(newLocalItems));
     }
@@ -66,9 +67,15 @@ const ThirdStepMatch = ({
     }
   };
 
+  useEffect(() => {
+    if (filtredProducts.length == 0) {
+      navigate('/pages/match-results');
+    }
+  }, [filtredProducts]);
+
   return (
     <div className="flex h-full flex-col gap-4">
-      <div className='flex h-[70%] justify-center'>
+      <div className="flex h-[70%] justify-center">
         {filtredProducts.map((product, index) => (
           <SwipeableCard
             key={product.title}
