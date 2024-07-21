@@ -159,20 +159,23 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   ) => {
     if (
       filtersByCollectionValue.find(
-        (filterCol) =>
-          filterCol.collectionName === filter.collectionName &&
-          filterCol.value === value,
+        (filterCol) => filterCol.collectionName === filter.collectionName,
       )
     ) {
       const filteredCollection = filtersByCollectionValue.filter(
         (filterCol) =>
           !(
             filterCol.collectionName === filter.collectionName &&
-            filterCol.value === value
+            filterCol.value !== value
           ),
       );
-
-      setFiltersByCollectionValue(filteredCollection);
+      const newFilter = {
+        collectionName: filter.collectionName,
+        title: filter.title,
+        value,
+      };
+      const newFiltersByCollectionValue = [...filteredCollection, newFilter];
+      setFiltersByCollectionValue(newFiltersByCollectionValue);
     } else {
       const newFilter = {
         collectionName: filter.collectionName,
