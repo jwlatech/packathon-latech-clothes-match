@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 import {Container} from '~/components/Container';
 import {Image} from '~/components';
@@ -7,15 +7,56 @@ import {getAspectRatioFromPercentage} from '~/lib/utils';
 import {Schema} from './MatchExperienceResults.schema';
 import type {MatchExperienceResultsCms} from './MatchExperienceResults.types';
 
+interface LocalProductVariant {
+  id: string;
+  title: string;
+  availableForSale: boolean;
+  sku: string;
+  weight: number;
+  weightUnit: 'KILOGRAMS' | 'GRAMS'; // Adjust if there are other units
+  image: IImage;
+  price: Price;
+  sellingPlanAllocations: {edges: any[]}; // Adjust as per actual structure
+  compareAtPrice: string | null; // Consider using a numeric type if you need to perform calculations
+  selectedOptions: SelectedOption[];
+  product: IProduct;
+}
+
+interface IImage {
+  altText: string | null;
+  height: number;
+  id: string;
+  url: string;
+  width: number;
+}
+
+interface IProduct {
+  handle: string;
+  id: string;
+  productType: string; // Adjust type as per actual usage
+  title: string;
+  tags: string[];
+}
+
+interface SelectedOption {
+  name: string;
+  value: string;
+}
+
+interface Price {
+  currencyCode: string;
+  amount: string; // Consider using a numeric type if you need to perform calculations
+}
+
 function ProductCard({
   cms,
   handleSelectProduct,
-  productId,
+  product,
   selected,
 }: {
   cms: MatchExperienceResultsCms;
-  handleSelectProduct: (productId: number) => void;
-  productId: number;
+  handleSelectProduct: (product: LocalProductVariant) => void;
+  product: LocalProductVariant;
   selected: boolean;
 }) {
   const {icons} = cms;
@@ -23,9 +64,16 @@ function ProductCard({
   return (
     <div
       className="flex cursor-pointer flex-col"
-      onClick={() => handleSelectProduct(productId)}
+      onClick={() => handleSelectProduct(product)}
     >
-      <div className="relative h-[204px] w-[151px] rounded-[20px] bg-red-500">
+      <div
+        className="relative h-[204px] w-[151px] rounded-[20px]"
+        style={{
+          backgroundImage: `url(${product.image.url})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
         <div className="absolute right-[12px] top-[12px] size-[32px]">
           {selected ? (
             <Image
@@ -58,8 +106,8 @@ function ProductCard({
           )}
         </div>
       </div>
-      <div className="mt-[12px]">
-        <span className="font-bold">Product Name</span>
+      <div className="mt-[12px] max-w-[121px]">
+        <p className="truncate font-bold">{product.product.title}</p>
       </div>
       <div className="mt-[2px]">
         <span>$50</span>
@@ -73,22 +121,22 @@ export function MatchExperienceResults({
 }: {
   cms: MatchExperienceResultsCms;
 }) {
-  const products = Array.from({length: 19}).map((_, index) => {
-    return index;
-  });
+  const [products, setProducts] = useState<LocalProductVariant[]>([]);
 
-  const recommendedProducts = Array.from({length: 5}).map((_, index) => {
-    return index + 1000;
-  });
-  const [selectedProducts, setSelectedProducts] = useState<number[]>([
-    ...products,
-  ]);
+  useEffect(() => {
+    setProducts(JSON.parse(localStorage.getItem('like') || '[]'));
+  }, []);
 
-  const handleSelectProduct = (productId: number) => {
-    if (selectedProducts.includes(productId)) {
-      setSelectedProducts(selectedProducts.filter((id) => id !== productId));
+  const recommendedProducts: any[] = [];
+  const [selectedProducts, setSelectedProducts] = useState<
+    LocalProductVariant[]
+  >([...products]);
+
+  const handleSelectProduct = (product: LocalProductVariant) => {
+    if (selectedProducts.includes(product)) {
+      setSelectedProducts(selectedProducts.filter((p) => p !== product));
     } else {
-      setSelectedProducts([...selectedProducts, productId]);
+      setSelectedProducts([...selectedProducts, product]);
     }
   };
   return (
@@ -118,7 +166,7 @@ export function MatchExperienceResults({
             <div>
               <p>
                 All the products have been specially selected for you, and the
-                best part? They're in your size!
+                best part? They`re in your size!
               </p>
             </div>
           </div>
@@ -129,7 +177,7 @@ export function MatchExperienceResults({
             {recommendedProducts.map((product, index) => (
               <ProductCard
                 handleSelectProduct={handleSelectProduct}
-                productId={product}
+                product={product}
                 selected={selectedProducts.includes(product)}
                 cms={cms}
                 key={index}
@@ -145,7 +193,7 @@ export function MatchExperienceResults({
             {products.map((product, index) => (
               <ProductCard
                 handleSelectProduct={handleSelectProduct}
-                productId={product}
+                product={product}
                 selected={selectedProducts.includes(product)}
                 cms={cms}
                 key={index}
