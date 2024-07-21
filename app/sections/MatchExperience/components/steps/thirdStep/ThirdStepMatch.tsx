@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   DislikeIcon,
   IProductCard,
@@ -80,23 +80,6 @@ const ThirdStepMatch = ({
           />
         ))}
       </div>
-      {/* <div className="flex w-full justify-center px-[36px]">
-        <div className="flex items-center justify-center rounded-[24px] bg-white">
-          {filtredProducts.length > 0 &&
-            filtredProducts.map((product, index) => (
-              <SwipeableCard
-                key={product.title}
-                index={index} // Aseguramos que la tarjeta superior tenga el índice correcto
-                product={product}
-                onSwipe={swipe}
-                onCardLeftScreen={removeCard}
-                swipeDirection={
-                  index === currentIndex ? swipeDirection : undefined
-                }
-              />
-            ))}
-        </div>
-      </div> */}
       {filtredProducts.length > 0 && (
         <div className="flex gap-4">
           <div className="cursor-pointer" onClick={handleLeftButtonClick}>
