@@ -18,40 +18,76 @@ import type {
   ICustomCollection,
   IfilterCollection,
   IfilterCollectionValue,
+  IVariant,
+  IProductCard,
 } from './interfaces';
 import {Chip} from './components/common';
-import {FirstStepMatch} from './components/steps';
+import {FirstStepMatch, ThirdStepMatch} from './components/steps';
 import MatchLookIcon from './icons/MatchLookIcon';
 import {SecondStepMatch} from './components/steps/secondStep';
 
-const INIT_FILTER = {
-  sizeShirt: '',
-  sizeShoes: '',
+// const INIT_FILTER = {
+//   collection: '',
+//   sizeShirt: '',
+//   sizeShoes: '',
+// };
+const INIT_FILTER: Ifilters = {
+  selectedFilterCollectionValue: [],
 };
 
 function filterProducts(products: Product[], filter: Ifilters) {
-  return products.filter((product) => {
-    let matchesShirt = true;
-    let matchesShoes = true;
+  const {selectedFilterCollectionValue} = filter;
 
-    if (filter.sizeShirt && filter.sizeShirt !== '') {
-      matchesShirt = product.variants.nodes.some(
-        (variant) =>
+  if (selectedFilterCollectionValue.length === 0) return products;
+
+  const selectedCollections = [
+    ...new Set(
+      filter.selectedFilterCollectionValue.map((filter) =>
+        filter.collectionName.toLowerCase(),
+      ),
+    ),
+  ];
+
+  const collectionProducts = products.reduce<
+    Record<string, (typeof products)[0]['variants']['nodes']>
+  >((acc, product) => {
+    product.collections.nodes.forEach((collection) => {
+      const collectionHandle = collection.handle.toLowerCase();
+      if (selectedCollections.includes(collectionHandle)) {
+        if (!acc[collectionHandle]) {
+          acc[collectionHandle] = [];
+        }
+        acc[collectionHandle].push(...product.variants.nodes);
+      }
+    });
+    return acc;
+  }, {});
+
+  console.log('collectionProducts', collectionProducts);
+
+  const filtredVariantsProducts: any[] = [];
+
+  selectedFilterCollectionValue.forEach((filterCollectionValue) => {
+    const collectionKey = filterCollectionValue.collectionName.toLowerCase();
+    const variants = collectionProducts[collectionKey];
+
+    if (variants) {
+      variants.forEach((variant) => {
+        // console.log('variant', variant);
+        if (
           variant.title.toLocaleLowerCase() ===
-            filter.sizeShirt.toLocaleLowerCase() && variant.availableForSale,
-      );
+            filterCollectionValue.value.toLocaleLowerCase() &&
+          variant.availableForSale
+        ) {
+          filtredVariantsProducts.push(variant);
+        }
+      });
+    } else {
+      console.log(`No variants found for collection: ${collectionKey}`);
     }
-
-    if (filter.sizeShoes && filter.sizeShoes !== '') {
-      matchesShoes = product.variants.nodes.some(
-        (variant) =>
-          variant.title.toLocaleLowerCase() ===
-            filter.sizeShoes.toLocaleLowerCase() && variant.availableForSale,
-      );
-    }
-
-    return matchesShirt || matchesShoes;
   });
+
+  return filtredVariantsProducts;
 }
 
 export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
@@ -82,9 +118,9 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   const fetchedProducts = useProductsFromHandles(productHandles);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const INIT_PRODUCTS_STATE = filterProducts(fetchedProducts, INIT_FILTER);
-  const [filtredProducts, setFiltredProducts] =
-    useState<Product[]>(INIT_PRODUCTS_STATE);
+  // const INIT_PRODUCTS_STATE = filterProducts(fetchedProducts, INIT_FILTER);
+  const [filtredProducts, setFiltredProducts] = useState<IProductCard[]>([]);
+  const [variantsProducts, setVariantsProducts] = useState<IVariant[]>([]);
 
   const [customCollections, setCustomCollections] =
     useState<ICustomCollection[]>(collections);
@@ -98,6 +134,8 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   const [filtersByCollectionValue, setFiltersByCollectionValue] = useState<
     IfilterCollectionValue[]
   >([]);
+
+  const [stepView, setStepView] = useState<number>(0);
 
   const handleSelectCollection = (collection: ICustomCollection) => {
     if (selectedCollections.includes(collection)) {
@@ -191,34 +229,57 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   const handleFilters = debounce(
     (
       filter: Ifilters,
-      setFiltredProducts: React.Dispatch<React.SetStateAction<Product[]>>,
+      // setFiltredProducts: React.Dispatch<React.SetStateAction<IProductCard[]>>,
       products: Product[],
     ) => {
-      const filtredData = filterProducts(products, filter);
+      const filtredVariantsProducts: IVariant[] = filterProducts(
+        products,
+        filter,
+      );
 
-      setFiltredProducts(filtredData);
+      setVariantsProducts(filtredVariantsProducts);
+
+      const uniqueProductsMap = new Map<string, IProductCard>();
+
+      filtredVariantsProducts.forEach((variant) => {
+        const product = variant.product;
+        if (!uniqueProductsMap.has(product.handle)) {
+          uniqueProductsMap.set(product.handle, {
+            title: product.handle,
+            id: product.id,
+            price: variant.price.amount,
+            imageURL: variant.image.url,
+            tags: product.tags,
+          });
+        }
+      });
+
+      // Convertir el mapa de vuelta a un array
+      const uniqueProductsArray = Array.from(uniqueProductsMap.values());
+
+      setFiltredProducts(uniqueProductsArray);
     },
     500,
   );
 
-  const {setMultipleFilters} = useQueryFilters(INIT_FILTER, (filters) => {
-    handleFilters(filters, setFiltredProducts, fetchedProducts);
+  const {setFilter} = useQueryFilters(INIT_FILTER, (filters) => {
+    // handleFilters(filters, setFiltredProducts, fetchedProducts);
+    handleFilters(filters, fetchedProducts);
   });
 
-  useEffect(() => {
-    const newFilters = {
-      sizeShirt: 'medium',
-      sizeShoes: '12',
-    };
+  // useEffect(() => {
+  //   const newFilters = [
+  //     {collectionName: 'Shoes', title: 'SizeShoe', value: '9'},
+  //   ];
 
-    if (fetchedProducts.length > 0) {
-      setFiltredProducts(fetchedProducts);
-      setMultipleFilters(newFilters);
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 100);
-    }
-  }, [fetchedProducts]);
+  //   if (fetchedProducts.length > 0) {
+  //     // setFiltredProducts(fetchedProducts);
+  //     setFilter('selectedFilterCollectionValue', newFilters);
+  //     setTimeout(() => {
+  //       setIsLoading(false);
+  //     }, 100);
+  //   }
+  // }, [fetchedProducts]);
 
   useEffect(() => {
     if (filtredProducts.length > 0) {
@@ -267,7 +328,9 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
     }
   };
 
-  const [stepView, setStepView] = useState<number>(0);
+  useEffect(() => {
+    setFilter('selectedFilterCollectionValue', filtersByCollectionValue);
+  }, [filtersByCollectionValue]);
 
   const menuView: {[key: number]: JSX.Element} = {
     0: (
@@ -286,6 +349,13 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
         }
       />
     ),
+    2: (
+      <ThirdStepMatch
+        filtredProducts={filtredProducts}
+        setFiltredProducts={setFiltredProducts}
+        variantsProducts={variantsProducts}
+      />
+    ),
   };
 
   return (
@@ -298,73 +368,19 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
         <div className="flex h-[calc(100vh-184px)] flex-col items-center justify-between gap-8 px-4">
           <div className="flex justify-center">
             <MatchLookIcon className="h-[60px] w-[80px]" />
-            {/* <Image
-              data={{
-                altText: image?.imageMobile?.altText || image?.alt,
-                url: image?.imageMobile?.src,
-                width: image?.imageMobile?.width,
-                height: image?.imageMobile?.height,
-              }}
-              aspectRatio={getAspectRatioFromPercentage(aspectMobile)}
-              crop={image?.cropMobile}
-              width="88"
-              loading="lazy"
-            /> */}
           </div>
-          <div style={{flexGrow: 1}}>
-            {menuView[stepView]}
-          </div>
-          <button
-            className="flex w-full max-w-[300px] items-center justify-center rounded-full bg-[#323232] py-2 text-white "
-            onClick={() => setStepView(stepView + 1)}
-          >
-            Next
-          </button>
+          <div style={{flexGrow: 1}}>{menuView[stepView]}</div>
+          {stepView <= 1 && (
+            <button
+              className="flex w-full max-w-[300px] items-center justify-center rounded-full bg-[#323232] py-2 text-white "
+              onClick={() => setStepView(stepView + 1)}
+            >
+              Next
+            </button>
+          )}
 
-          {/* <div className="flex w-full gap-2 justify-center px-[36px]">
-            {customCollections.map((collection, index) => (
-              <Chip
-                label={collection.title}
-                isSelected={isSelectedCollection(collection)}
-                key={collection.title}
-                onClick={() => handleSelectCollection(collection)}
-              />
-            ))}
-          </div>
-          <div>
-            {filtersByCollection.length > 0 && (
-              <div className="flex flex-col gap-4">
-                {filtersByCollection.map((filter) => (
-                  <div className="flex flex-col gap-2" key={filter.title}>
-                    <div className="flex w-full items-center justify-center">
-                      <p className="font-semibold">{filter.collectionName}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      {filter.values.map((value) => (
-                        <div
-                          className={`cursor-pointer ${
-                            isSelectedFilter(filter.collectionName, value)
-                              ? 'bg-stone-900 text-white'
-                              : 'bg-neutral-200 text-neutral-400'
-                          } select-none rounded-full px-6 py-2`}
-                          key={value}
-                          onClick={() =>
-                            handleSelectedFilterCollectionValue(filter, value)
-                          }
-                        >
-                          <p>{value}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex w-full grow justify-center px-[36px]">
-            {isLoading ? (
-              <p>Loading...</p>
-            ) : (
+          {/* <
+          <div className="flex w-full grow justify-center px-[36px]"> 
               <div className="flex size-full max-w-[500px] items-center justify-center rounded-[24px] bg-white">
                 {filtredProducts.length > 0 &&
                   !isLoading &&
@@ -381,7 +397,6 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
                     />
                   ))}
               </div>
-            )}
           </div>
           {filtredProducts.length > 0 && (
             <div className="flex gap-4">

@@ -6,10 +6,10 @@ import {
   AnimatePresence,
   animate,
 } from 'framer-motion';
-import {Product} from '@shopify/hydrogen-react/storefront-api-types';
+import { IProductCard } from '../../interfaces';
 
 interface SwipeableCardProps {
-  product: Product;
+  product: IProductCard;
   index: number;
   onSwipe: (index: number, direction: string) => void;
   onCardLeftScreen: (index: number) => void;
@@ -65,8 +65,8 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
       <motion.div
         style={{
           position: "absolute",
-          width: "300px",
-          height: "400px",
+          width: "250px",
+          height: "300px",
           backgroundColor: "#023ED4", // Color de fondo
           borderRadius: "10px",
           cursor: "grab",
@@ -117,7 +117,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
           {product.title}
         </h1> */}
         <img
-          src={product.featuredImage?.url}
+          src={product.imageURL}
           alt={product.title}
           style={{ width: "80%", height: "80%", objectFit: "contain" }}
           draggable="false"
