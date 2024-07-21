@@ -6,6 +6,7 @@ import {getAspectRatioFromPercentage} from '~/lib/utils';
 
 import {Schema} from './MatchExperienceResults.schema';
 import type {MatchExperienceResultsCms} from './MatchExperienceResults.types';
+import {useNavigate} from '@remix-run/react';
 
 interface LocalProductVariant {
   id: string;
@@ -122,8 +123,14 @@ export function MatchExperienceResults({
   cms: MatchExperienceResultsCms;
 }) {
   const [products, setProducts] = useState<LocalProductVariant[]>([]);
-
+  const navigate = useNavigate();
   useEffect(() => {
+    if (
+      localStorage.getItem('like') === null ||
+      localStorage.getItem('like') === '[]'
+    ) {
+      navigate('/pages/match');
+    }
     setProducts(JSON.parse(localStorage.getItem('like') || '[]'));
   }, []);
 
