@@ -157,37 +157,22 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
     filter: IfilterCollection,
     value: string,
   ) => {
-    if (
-      filtersByCollectionValue.find(
-        (filterCol) => filterCol.collectionName === filter.collectionName,
-      )
-    ) {
-      const filteredCollection = filtersByCollectionValue.filter(
-        (filterCol) =>
-          !(
-            filterCol.collectionName === filter.collectionName &&
-            filterCol.value !== value
-          ),
-      );
-      const newFilter = {
-        collectionName: filter.collectionName,
-        title: filter.title,
-        value,
-      };
-      const newFiltersByCollectionValue = [...filteredCollection, newFilter];
-      setFiltersByCollectionValue(newFiltersByCollectionValue);
-    } else {
-      const newFilter = {
-        collectionName: filter.collectionName,
-        title: filter.title,
-        value,
-      };
-      const newFiltersByCollectionValue = [
-        ...filtersByCollectionValue,
-        newFilter,
-      ];
-      setFiltersByCollectionValue(newFiltersByCollectionValue);
-    }
+    // Crear el nuevo filtro
+    const newFilter = {
+      collectionName: filter.collectionName,
+      title: filter.title,
+      value,
+    };
+  
+    // Filtrar la colección, excluyendo los que coinciden con collectionName y tienen diferente valor
+    const filteredCollection = filtersByCollectionValue.filter(
+      (filterCol) =>
+        !(filterCol.collectionName === filter.collectionName && filterCol.value !== value)
+    );
+  
+    // Agregar el nuevo filtro
+    const newFiltersByCollectionValue = [...filteredCollection, newFilter];
+    setFiltersByCollectionValue(newFiltersByCollectionValue);
   };
 
   const isSelectedCollection = (collection: ICustomCollection) => {
