@@ -50,4 +50,5 @@ export interface BYOBAddToCartProps {
   addToCartUnlocked: boolean;
   bundle: ProductVariant[];
   total: string;
+  className?: string;
 }

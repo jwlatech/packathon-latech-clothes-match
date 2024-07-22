@@ -10,6 +10,7 @@ export function BYOBAddToCart({
   addToCartUnlocked,
   bundle,
   total,
+  className = '',
 }: BYOBAddToCartProps) {
   const {error, linesAdd, id: cartId, status} = useCart();
   const {openCart} = useGlobal();
@@ -80,7 +81,7 @@ export function BYOBAddToCart({
     <button
       aria-label="Add bundle to cart"
       disabled={!addToCartUnlocked}
-      className="btn-primary w-full"
+      className={`btn-primary w-full ${className}`}
       onClick={handleAddToCart}
       type="button"
     >

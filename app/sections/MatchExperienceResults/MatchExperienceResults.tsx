@@ -1,14 +1,15 @@
 import {useEffect, useState} from 'react';
 import {useNavigate} from '@remix-run/react';
+import type {ProductVariant} from '@shopify/hydrogen-react/storefront-api-types';
 
 import {Container} from '~/components/Container';
 import {Image} from '~/components';
 import {getAspectRatioFromPercentage} from '~/lib/utils';
 
+import {BYOBAddToCart} from '../BuildYourOwnBundle/BYOBAddToCart';
+
 import {Schema} from './MatchExperienceResults.schema';
 import type {MatchExperienceResultsCms} from './MatchExperienceResults.types';
-import {ProductVariant} from '@shopify/hydrogen-react/storefront-api-types';
-import {BYOBAddToCart} from '../BuildYourOwnBundle/BYOBAddToCart';
 
 function ProductCard({
   cms,
@@ -123,6 +124,7 @@ export function MatchExperienceResults({
         }}
       >
         <BYOBAddToCart
+          className="rounded-[100px] border-none bg-[#323232] px-[24px] py-[16px] text-[14px] text-white"
           bundle={selectedProducts}
           addToCartUnlocked={true}
           total={`$${selectedProducts
@@ -130,6 +132,9 @@ export function MatchExperienceResults({
             .toFixed(2)
             .toString()}`}
         />
+        <span className="mt-[10px] text-center text-white">
+          *Add selected products to cart
+        </span>
         {/* <button className="w-full rounded-full bg-[#323232] px-[24px] py-[16px] font-[14px] text-white">
           Add selection to cart
         </button>

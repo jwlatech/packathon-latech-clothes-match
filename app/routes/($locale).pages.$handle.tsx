@@ -69,8 +69,9 @@ export async function loader({context, params, request}: LoaderFunctionArgs) {
     variables: {handle},
     cache: context.storefront.CacheLong(),
   });
+  const isMatchGame = handle === 'match' || handle === 'match-experience';
   const collections: any = [];
-  if (handle === 'match') {
+  if (isMatchGame) {
     const collectionsFromCMS =
       data?.page?.sections?.nodes[0]?.data?.collections;
     if (collectionsFromCMS.length > 0) {
@@ -81,7 +82,6 @@ export async function loader({context, params, request}: LoaderFunctionArgs) {
         const {collection} = await context.storefront.query(
           MATCH_COLLECTION_QUERY(collectionHandle),
         );
-        console.log("collection", JSON.stringify(collection, null, 2));
         collections.push(collection);
       }
     }
