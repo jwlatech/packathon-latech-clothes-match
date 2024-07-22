@@ -448,3 +448,12 @@
       object-cover;
   }
 }
+
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+
+/* Ocultar la scrollbar en Chrome, Safari, y Edge */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

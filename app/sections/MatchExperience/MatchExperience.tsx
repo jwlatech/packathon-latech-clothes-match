@@ -26,13 +26,19 @@ const INIT_FILTER: Ifilters = {
   selectedFilterCollectionValue: [],
 };
 
-function filterProducts(products: Product[], filter: Ifilters, selectedGender: string) {
+function filterProducts(
+  products: Product[],
+  filter: Ifilters,
+  selectedGender: string,
+) {
   const {selectedFilterCollectionValue} = filter;
 
   if (selectedFilterCollectionValue.length === 0) return products;
 
   const genderProducts = products.filter((product) => {
-    return product.tags.map(tag => tag.toLocaleLowerCase()).includes(selectedGender.toLocaleLowerCase());
+    return product.tags
+      .map((tag) => tag.toLocaleLowerCase())
+      .includes(selectedGender.toLocaleLowerCase());
   });
 
   const selectedCollections = [
@@ -104,7 +110,9 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
 
   const fetchedProducts = useProductsFromHandles(productHandles);
   const [filtredProducts, setFiltredProducts] = useState<IProductCard[]>([]);
-  const [variantsProducts, setVariantsProducts] = useState<ProductVariant[]>([]);
+  const [variantsProducts, setVariantsProducts] = useState<ProductVariant[]>(
+    [],
+  );
 
   const [selectedGender, setSelectedGender] = useState<string>('Men');
   const [customCollections, setCustomCollections] =
@@ -196,35 +204,38 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
     );
   };
 
-  const handleFilters = debounce((filter: Ifilters, products: Product[], selectedGender: string) => {
-    const filtredVariantsProducts: ProductVariant[] = filterProducts(
-      products,
-      filter,
-      selectedGender
-    );
+  const handleFilters = debounce(
+    (filter: Ifilters, products: Product[], selectedGender: string) => {
+      const filtredVariantsProducts: ProductVariant[] = filterProducts(
+        products,
+        filter,
+        selectedGender,
+      );
 
-    setVariantsProducts(filtredVariantsProducts);
+      setVariantsProducts(filtredVariantsProducts);
 
-    const uniqueProductsMap = new Map<string, IProductCard>();
+      const uniqueProductsMap = new Map<string, IProductCard>();
 
-    filtredVariantsProducts.forEach((variant) => {
-      const product = variant.product;
-      if (!uniqueProductsMap.has(product.handle)) {
-        uniqueProductsMap.set(product.handle, {
-          title: product.handle,
-          id: product.id,
-          price: variant.price.amount,
-          imageURL: variant.image?.url || '',
-          tags: product.tags,
-        });
-      }
-    });
+      filtredVariantsProducts.forEach((variant) => {
+        const product = variant.product;
+        if (!uniqueProductsMap.has(product.handle)) {
+          uniqueProductsMap.set(product.handle, {
+            title: product.handle,
+            id: product.id,
+            price: variant.price.amount,
+            imageURL: variant.image?.url || '',
+            tags: product.tags,
+          });
+        }
+      });
 
-    // Convertir el mapa de vuelta a un array
-    const uniqueProductsArray = Array.from(uniqueProductsMap.values());
+      // Convertir el mapa de vuelta a un array
+      const uniqueProductsArray = Array.from(uniqueProductsMap.values());
 
-    setFiltredProducts(uniqueProductsArray);
-  }, 500);
+      setFiltredProducts(uniqueProductsArray);
+    },
+    500,
+  );
 
   const {setFilter} = useQueryFilters(INIT_FILTER, (filters) => {
     handleFilters(filters, fetchedProducts, selectedGender);
@@ -268,34 +279,50 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   };
 
   const isDisabled = () => {
-    if(stepView === 0) {
+    if (stepView === 0) {
       return selectedCollections.length === 0;
-    } else if(stepView === 1) {
+    } else if (stepView === 1) {
       return filtersByCollectionValue.length === 0;
     }
-  }
+  };
 
   return (
     <Container container={cms.container}>
       <div
         className={`${section?.fullBleed ? '' : 'px-contained'} ${
           section?.verticalPadding ? 'py-contained' : ''
-        }`}
+        }
+        `}
       >
-        <div className="flex h-[calc(100vh-184px)] flex-col items-center justify-between gap-8 px-4">
+        <div className="flex h-[calc(100vh-184px)] flex-col items-center justify-between gap-4 px-4 scrollbar-hide">
           <div className="flex justify-center">
             <MatchLookIcon className="h-[60px] w-[80px]" />
           </div>
-          <div style={{flexGrow: 1}}>{menuView[stepView]}</div>
-          {stepView <= 1 && (
-            <button
-              className={`flex w-full max-w-[300px] items-center justify-center rounded-full ${isDisabled() ? "bg-[#646464]" : "bg-[#323232]" }  py-2 text-white`}
-              disabled={isDisabled()}
-              onClick={() => setStepView(stepView + 1)}
-            >
-              Next
-            </button>
-          )}
+          <div
+            className="scrollbar-hide"
+            style={{flexGrow: 1, overflowX: 'hidden'}}
+          >
+            {menuView[stepView]}
+          </div>
+          <div className="w-full flex flex-col items-center justify-center gap-2">
+            {stepView <= 1 && (
+              <button
+                className={`flex w-full max-w-[300px] items-center justify-center rounded-full ${isDisabled() ? 'bg-[#646464]' : 'bg-[#323232]'}  py-3 text-white`}
+                disabled={isDisabled()}
+                onClick={() => setStepView(stepView + 1)}
+              >
+                Next
+              </button>
+            )}
+            {stepView == 1 && (
+              <button
+                className={`flex w-fit items-center justify-center rounded-full text-[#323232] font-semibold`}
+                onClick={() => setStepView(stepView - 1)}
+              >
+                Back
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </Container>

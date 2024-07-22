@@ -23,14 +23,14 @@ const SecondStepMatch = ({
   handleSelectedFilterCollectionValue,
 }: SecondStepMatchProps) => {
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 max-h-[500px] scrollbar-hide">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col items-center justify-center font-semibold gap-1">
-          <span>Let's choose the perferct size for you!</span>
+          <span>Let's choose the perfect size for you!</span>
         </div>
-        <div className="flex flex-col w-full gap-4 justify-center">
+        <div className="flex flex-col w-full gap-2 justify-center">
           {filtersByCollection.map((filter, index) => (
-            <div className="flex flex-col gap-2" key={filter.title}>
+            <div className="flex flex-col gap-1 justify-center items-center" key={filter.title}>
               <div className="flex w-full items-center justify-center">
                 <p className="font-semibold">{filter.collectionName}</p>
               </div>

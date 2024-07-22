@@ -1,6 +1,7 @@
 import {useNavigate} from '@remix-run/react';
-import { ProductVariant } from '@shopify/hydrogen-react/storefront-api-types';
+import {ProductVariant} from '@shopify/hydrogen-react/storefront-api-types';
 import React, {useEffect, useState} from 'react';
+import {Spinner} from '~/components';
 import {
   DislikeIcon,
   IProductCard,
@@ -21,6 +22,7 @@ const ThirdStepMatch = ({
 }: ThirdStepMatchProps) => {
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState<number>(
     filtredProducts.length - 1,
   );
@@ -69,13 +71,20 @@ const ThirdStepMatch = ({
 
   useEffect(() => {
     if (filtredProducts.length == 0) {
+      setIsLoading(true);
       navigate('/pages/match-results');
     }
   }, [filtredProducts]);
 
   return (
-    <div className="flex h-full flex-col gap-4">
-      <div className="flex h-[70%] justify-center">
+    <div className="flex h-full flex-col gap-4 overflow-x-hidden">
+      {isLoading && (
+        <div className='flex flex-col h-full items-center justify-center gap-4'>
+          <p className='font-bold text-lg'>We are matching your choices!</p>
+          <Spinner />
+        </div>
+      )}
+      <div className="flex h-[90%] justify-center">
         {filtredProducts.map((product, index) => (
           <SwipeableCard
             key={product.title}
@@ -84,6 +93,7 @@ const ThirdStepMatch = ({
             onSwipe={swipe}
             onCardLeftScreen={removeCard}
             swipeDirection={index === currentIndex ? swipeDirection : undefined}
+            viewingCard={currentIndex === index}
           />
         ))}
       </div>

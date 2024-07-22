@@ -14,6 +14,7 @@ interface SwipeableCardProps {
   onSwipe: (index: number, direction: string) => void;
   onCardLeftScreen: (index: number) => void;
   swipeDirection?: 'left' | 'right';
+  viewingCard: boolean;
 }
 
 const SwipeableCard: React.FC<SwipeableCardProps> = ({
@@ -22,9 +23,16 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
   onSwipe,
   onCardLeftScreen,
   swipeDirection,
+  viewingCard,
 }) => {
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 0, 200], [-20, 0, 20]);
+  // const rotate = useTransform(x, [-200, 0, 200], [-20, 0, 20]);
+  // const opacity = useTransform(x, [-200, 0, 200], [0, 1, 0]);
+
+  const rotate = useTransform(x, [-400, 0, 400], [-20, 0, 20]); // Ajusta aquí también si es necesario
+
+  // Cambios: transformamos la opacidad en función de x de manera más gradual
+  const opacity = useTransform(x, [-400, 0, 400], [0, 1, 0]);
 
   const likeOpacity = useTransform(x, [50, 150], [0, 1]);
   const dislikeOpacity = useTransform(x, [-50, -150], [0, 1]);
@@ -66,7 +74,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
         style={{
           position: 'absolute',
           width: '250px',
-          height: '350px',
+          height: viewingCard ? "402px" : '350px',
           cursor: 'grab',
           x,
           rotate,
@@ -74,6 +82,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
+          opacity,
           // boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
         }}
         drag="x"
@@ -111,9 +120,6 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
         >
           Dislike
         </motion.div>
-        {/* <h1 style={{ fontSize: "24px", fontWeight: "bold", color: "#000000" }}>
-          {product.title}
-        </h1> */}
         <div
           className="max-h-[405px] max-w-[358px] w-full h-[405px]"
           style={{
@@ -124,6 +130,18 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
           }}
           draggable="false"
         ></div>
+        {viewingCard && (
+          <h2
+            className="text-center mt-4 capitalize"
+            style={{
+              fontSize: '18px',
+              fontWeight: 'bold',
+              color: '#000000',
+            }}
+          >
+            {product.title.replaceAll('-', ' ')}
+          </h2>
+        )}
       </motion.div>
     </AnimatePresence>
   );

@@ -28,7 +28,7 @@ const FirstStepMatch = ({
           <span>Select the type of</span>
           <span>products you are looking for</span>
         </div>
-        <div className="flex w-full gap-2 justify-center px-[36px]">
+        <div className="flex w-full gap-2 justify-center px-[36px] flex-wrap">
           {collections.map((collection, index) => (
             <Chip
               label={collection.title}
