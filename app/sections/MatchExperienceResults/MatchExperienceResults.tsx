@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react';
+import {useNavigate} from '@remix-run/react';
 
 import {Container} from '~/components/Container';
 import {Image} from '~/components';
@@ -6,48 +7,8 @@ import {getAspectRatioFromPercentage} from '~/lib/utils';
 
 import {Schema} from './MatchExperienceResults.schema';
 import type {MatchExperienceResultsCms} from './MatchExperienceResults.types';
-import {useNavigate} from '@remix-run/react';
-
-interface LocalProductVariant {
-  id: string;
-  title: string;
-  availableForSale: boolean;
-  sku: string;
-  weight: number;
-  weightUnit: 'KILOGRAMS' | 'GRAMS'; // Adjust if there are other units
-  image: IImage;
-  price: Price;
-  sellingPlanAllocations: {edges: any[]}; // Adjust as per actual structure
-  compareAtPrice: string | null; // Consider using a numeric type if you need to perform calculations
-  selectedOptions: SelectedOption[];
-  product: IProduct;
-}
-
-interface IImage {
-  altText: string | null;
-  height: number;
-  id: string;
-  url: string;
-  width: number;
-}
-
-interface IProduct {
-  handle: string;
-  id: string;
-  productType: string; // Adjust type as per actual usage
-  title: string;
-  tags: string[];
-}
-
-interface SelectedOption {
-  name: string;
-  value: string;
-}
-
-interface Price {
-  currencyCode: string;
-  amount: string; // Consider using a numeric type if you need to perform calculations
-}
+import {ProductVariant} from '@shopify/hydrogen-react/storefront-api-types';
+import {BYOBAddToCart} from '../BuildYourOwnBundle/BYOBAddToCart';
 
 function ProductCard({
   cms,
@@ -56,8 +17,8 @@ function ProductCard({
   selected,
 }: {
   cms: MatchExperienceResultsCms;
-  handleSelectProduct: (product: LocalProductVariant) => void;
-  product: LocalProductVariant;
+  handleSelectProduct: (product: ProductVariant) => void;
+  product: ProductVariant;
   selected: boolean;
 }) {
   const {icons} = cms;
@@ -70,7 +31,7 @@ function ProductCard({
       <div
         className="relative h-[204px] w-[151px] rounded-[20px]"
         style={{
-          backgroundImage: `url(${product.image.url})`,
+          backgroundImage: `url(${product.image?.url})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -111,7 +72,7 @@ function ProductCard({
         <p className="truncate font-bold">{product.product.title}</p>
       </div>
       <div className="mt-[2px]">
-        <span>$50</span>
+        <span>${product.price.amount}</span>
       </div>
     </div>
   );
@@ -122,7 +83,10 @@ export function MatchExperienceResults({
 }: {
   cms: MatchExperienceResultsCms;
 }) {
-  const [products, setProducts] = useState<LocalProductVariant[]>([]);
+  const [products, setProducts] = useState<ProductVariant[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<ProductVariant[]>([
+    ...products,
+  ]);
   const navigate = useNavigate();
   useEffect(() => {
     if (
@@ -131,21 +95,22 @@ export function MatchExperienceResults({
     ) {
       navigate('/pages/match');
     }
-    setProducts(JSON.parse(localStorage.getItem('like') || '[]'));
+    const products = JSON.parse(localStorage.getItem('like') || '[]');
+    setProducts(products);
+    setSelectedProducts(products);
   }, []);
 
   const recommendedProducts: any[] = [];
-  const [selectedProducts, setSelectedProducts] = useState<
-    LocalProductVariant[]
-  >([...products]);
 
-  const handleSelectProduct = (product: LocalProductVariant) => {
+  const handleSelectProduct = (product: ProductVariant) => {
     if (selectedProducts.includes(product)) {
       setSelectedProducts(selectedProducts.filter((p) => p !== product));
     } else {
       setSelectedProducts([...selectedProducts, product]);
     }
   };
+
+  console.log(selectedProducts);
   return (
     <Container container={cms.container}>
       <div
@@ -157,12 +122,20 @@ export function MatchExperienceResults({
           backdropFilter: 'blur(10px)',
         }}
       >
-        <button className="w-full rounded-full bg-[#323232] px-[24px] py-[16px] font-[14px] text-white">
+        <BYOBAddToCart
+          bundle={selectedProducts}
+          addToCartUnlocked={true}
+          total={`$${selectedProducts
+            .reduce((a, b) => a + Number(b.price.amount), 0)
+            .toFixed(2)
+            .toString()}`}
+        />
+        {/* <button className="w-full rounded-full bg-[#323232] px-[24px] py-[16px] font-[14px] text-white">
           Add selection to cart
         </button>
         <span className="mt-[10px] text-center text-white">
           *Add selected products to cart
-        </span>
+        </span> */}
       </div>
       <div className="flex flex-col justify-center">
         <div className="flex flex-col justify-center gap-5 text-center">
