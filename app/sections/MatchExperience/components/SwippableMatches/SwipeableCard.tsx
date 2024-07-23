@@ -74,7 +74,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
         style={{
           position: 'absolute',
           width: '250px',
-          height: viewingCard ? "402px" : '350px',
+          height: viewingCard ? "380px" : '328px',
           cursor: 'grab',
           x,
           rotate,
@@ -121,7 +121,7 @@ const SwipeableCard: React.FC<SwipeableCardProps> = ({
           Dislike
         </motion.div>
         <div
-          className="max-h-[405px] max-w-[358px] w-full h-[405px]"
+          className="max-h-[380px] max-w-[358px] w-full h-[380px]"
           style={{
             backgroundImage: `url(${product.imageURL})`,
             backgroundSize: 'cover',
