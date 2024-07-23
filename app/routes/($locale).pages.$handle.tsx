@@ -69,7 +69,7 @@ export async function loader({context, params, request}: LoaderFunctionArgs) {
     variables: {handle},
     cache: context.storefront.CacheLong(),
   });
-  const isMatchGame = handle === 'match' || handle === 'match-experience';
+  const isMatchGame = handle === 'match';
   const collections: any = [];
   if (isMatchGame) {
     const collectionsFromCMS =
