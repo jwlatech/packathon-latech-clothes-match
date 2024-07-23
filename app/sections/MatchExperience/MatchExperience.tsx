@@ -314,7 +314,7 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
       >
         <div className="flex h-[calc(100vh-184px)] flex-col items-center justify-between gap-4 px-4 scrollbar-hide">
           <div className="flex justify-center">
-            <MatchLookIcon className="h-[60px] w-[80px]" />
+            
           </div>
           <div
             className="scrollbar-hide"
