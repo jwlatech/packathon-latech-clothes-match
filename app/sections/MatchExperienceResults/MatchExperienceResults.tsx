@@ -126,6 +126,7 @@ export function MatchExperienceResults({
           background:
             'linear-gradient(0deg, rgba(0, 0, 0, 0.40) 0%, rgba(255, 255, 255, 0.40) 100%)',
           boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
+          WebkitBackdropFilter: 'blur(10px)',
           backdropFilter: 'blur(10px)',
         }}
       >
