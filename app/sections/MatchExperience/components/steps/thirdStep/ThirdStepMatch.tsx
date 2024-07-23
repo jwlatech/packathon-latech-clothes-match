@@ -1,4 +1,4 @@
-import {useNavigate} from '@remix-run/react';
+import {useLoaderData, useNavigate} from '@remix-run/react';
 import {ProductVariant} from '@shopify/hydrogen-react/storefront-api-types';
 import React, {useEffect, useState} from 'react';
 import {Spinner} from '~/components';

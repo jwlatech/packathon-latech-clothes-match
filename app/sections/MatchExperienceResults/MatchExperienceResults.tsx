@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useNavigate} from '@remix-run/react';
 import type {ProductVariant} from '@shopify/hydrogen-react/storefront-api-types';
 
@@ -88,7 +88,11 @@ export function MatchExperienceResults({
   const [selectedProducts, setSelectedProducts] = useState<ProductVariant[]>([
     ...products,
   ]);
+  const [recommendedProducts, setRecommendedProducts] = useState<
+    ProductVariant[]
+  >([]);
   const navigate = useNavigate();
+
   useEffect(() => {
     if (
       localStorage.getItem('like') === null ||
@@ -97,11 +101,13 @@ export function MatchExperienceResults({
       navigate('/pages/match');
     }
     const products = JSON.parse(localStorage.getItem('like') || '[]');
+    const recommendedProductsLS = JSON.parse(
+      localStorage.getItem('nonSelectedProducts') || '[]',
+    );
     setProducts(products);
     setSelectedProducts(products);
+    setRecommendedProducts(recommendedProductsLS);
   }, []);
-
-  const recommendedProducts: any[] = [];
 
   const handleSelectProduct = (product: ProductVariant) => {
     if (selectedProducts.includes(product)) {
@@ -157,7 +163,7 @@ export function MatchExperienceResults({
           </div>
           <div
             id="recommendedProducts"
-            className="flex flex-row gap-4 overflow-x-auto px-[16px] text-left"
+            className="flex gap-4 overflow-x-auto px-[16px] text-left"
           >
             {recommendedProducts.map((product, index) => (
               <ProductCard

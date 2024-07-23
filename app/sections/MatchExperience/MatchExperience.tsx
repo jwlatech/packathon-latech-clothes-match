@@ -85,6 +85,23 @@ function filterProducts(
     }
   });
 
+  const selectedProducts = [
+    ...new Set(
+      filtredVariantsProducts.map(
+        (variant: ProductVariant) => variant.product.id,
+      ),
+    ),
+  ];
+
+  const nonSelectedProducts = products
+  .filter((product) => !selectedProducts.includes(product.id))
+  .map((product) => {
+    return product.variants.nodes.find(node => node.availableForSale);
+  })
+  .filter(variant => variant !== undefined);
+
+  localStorage.setItem('nonSelectedProducts', JSON.stringify(nonSelectedProducts));
+
   return filtredVariantsProducts;
 }
 
@@ -244,6 +261,7 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
   useEffect(() => {
     localStorage.setItem('like', JSON.stringify([]));
     localStorage.setItem('dislike', JSON.stringify([]));
+    localStorage.setItem('nonSelectedProducts', JSON.stringify([]));
   }, []);
 
   useEffect(() => {
