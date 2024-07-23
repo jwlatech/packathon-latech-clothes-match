@@ -322,7 +322,7 @@ export function MatchExperience({cms}: {cms: MatchExperienceCms}) {
           >
             {menuView[stepView]}
           </div>
-          <div className="w-full flex flex-col items-center justify-center gap-2">
+          <div className="w-full flex flex-col items-center justify-center gap-2 pb-6">
             {stepView <= 1 && (
               <button
                 className={`flex w-full max-w-[300px] items-center justify-center rounded-full ${isDisabled() ? 'bg-[#646464]' : 'bg-[#323232]'}  py-3 text-white`}
