@@ -29,6 +29,7 @@ const ThirdStepMatch = ({
   const [swipeDirection, setSwipeDirection] = useState<
     'left' | 'right' | undefined
   >(undefined);
+  const [viewMatches, setViewMatches] = useState<boolean>(false);
 
   const swipe = (index: number, direction: string) => {
     if (index < 0) return;
@@ -65,6 +66,7 @@ const ThirdStepMatch = ({
 
   const handleRightButtonClick = () => {
     if (currentIndex >= 0) {
+      setViewMatches(true);
       setSwipeDirection('right');
     }
   };
@@ -79,8 +81,8 @@ const ThirdStepMatch = ({
   return (
     <div className="flex h-full flex-col gap-4 overflow-x-hidden">
       {isLoading && (
-        <div className='flex flex-col h-full items-center justify-center gap-4'>
-          <p className='font-bold text-lg'>We are matching your choices!</p>
+        <div className="flex flex-col h-full items-center justify-center gap-4">
+          <p className="font-bold text-lg">We are matching your choices!</p>
           <Spinner />
         </div>
       )}
@@ -98,16 +100,26 @@ const ThirdStepMatch = ({
         ))}
       </div>
       {filtredProducts.length > 0 && (
-        <div className="flex gap-4">
-          <div className="cursor-pointer" onClick={handleLeftButtonClick}>
-            <DislikeIcon className="text-red-400" />
+        <div className='flex flex-col gap-4 items-center justify-center' >
+          <div className="flex gap-4">
+            <div className="cursor-pointer" onClick={handleLeftButtonClick}>
+              <DislikeIcon className="text-red-400" />
+            </div>
+            <div
+              className="cursor-pointer transition duration-300 active:scale-95"
+              onClick={handleRightButtonClick}
+            >
+              <LikeIcon className="text-green-300" />
+            </div>
           </div>
-          <div
-            className="cursor-pointer transition duration-300 active:scale-95"
-            onClick={handleRightButtonClick}
-          >
-            <LikeIcon className="text-green-300" />
-          </div>
+          {viewMatches && (
+            <button
+              className={`flex w-fit items-center justify-center rounded-full text-[#323232] font-semibold underline`}
+              onClick={() => navigate('/pages/match-results')}
+            >
+              Finish and go to results
+            </button>
+          )}
         </div>
       )}
     </div>
